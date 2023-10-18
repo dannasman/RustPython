@@ -897,9 +897,8 @@ pub trait GetDescriptor: PyPayload {
         vm: &VirtualMachine,
     ) -> PyResult<(&'a Py<Self>, PyObjectRef)> {
         // CPython descr_check
-        println!("{}=={:?}", obj.obj_type(), zelf.obj_type());
         if !obj.type_check(zelf.obj_type()) {
-            Err(vm.new_type_error(format!("attribute {} of {} objects is not readable", zelf.obj_type().__name__(vm), zelf.obj_type())))
+            Err(vm.new_type_error(format!("attribute {:?} of {} objects is not readable", zelf, zelf.obj_type())))
         } else {
             Ok((Self::_as_pyref(zelf, vm).unwrap(), obj))
         }
