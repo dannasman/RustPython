@@ -972,7 +972,7 @@ pub trait Comparable: PyPayload {
         vm: &VirtualMachine,
     ) -> PyResult<Either<PyObjectRef, PyComparisonValue>> {
         let zelf = zelf.downcast_ref().ok_or_else(|| {
-            vm.new_attribute_error(format!(
+            vm.new_type_error(format!(
                 "unexpected payload for {}",
                 op.method_name(&vm.ctx).as_str()
             ))
