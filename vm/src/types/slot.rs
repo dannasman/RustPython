@@ -893,22 +893,16 @@ pub trait GetDescriptor: PyPayload {
     #[inline]
     fn _check<'a>(
         zelf: &'a PyObject,
-        obj: Option<PyObjectRef>,
+        obj: PyObjectRef,
         vm: &VirtualMachine,
-    ) -> Option<(&'a Py<Self>, PyObjectRef)> {
+    ) -> PyResult<(&'a Py<Self>, PyObjectRef)> {
         // CPython descr_check
-        let obj = obj?;
-        // if (!PyObject_TypeCheck(obj, descr->d_type)) {
-        //     PyErr_Format(PyExc_TypeError,
-        //                  "descriptor '%V' for '%.100s' objects "
-        //                  "doesn't apply to a '%.100s' object",
-        //                  descr_name((PyDescrObject *)descr), "?",
-        //                  descr->d_type->slot_name,
-        //                  obj->ob_type->slot_name);
-        //     *pres = NULL;
-        //     return 1;
-        // } else {
-        Some((Self::_as_pyref(zelf, vm).unwrap(), obj))
+        println!("{}=={:?}", obj.obj_type(), zelf.obj_type());
+        if !obj.type_check(zelf.obj_type()) {
+            Err(vm.new_type_error(format!("attribute {} of {} objects is not readable", zelf.obj_type().__name__(vm), zelf.obj_type())))
+        } else {
+            Ok((Self::_as_pyref(zelf, vm).unwrap(), obj))
+        }
     }
 
     #[inline]
@@ -974,7 +968,7 @@ pub trait Comparable: PyPayload {
         vm: &VirtualMachine,
     ) -> PyResult<Either<PyObjectRef, PyComparisonValue>> {
         let zelf = zelf.downcast_ref().ok_or_else(|| {
-            vm.new_type_error(format!(
+            vm.new_attribute_error(format!(
                 "unexpected payload for {}",
                 op.method_name(&vm.ctx).as_str()
             ))
