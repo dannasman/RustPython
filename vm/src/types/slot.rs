@@ -898,7 +898,12 @@ pub trait GetDescriptor: PyPayload {
     ) -> PyResult<(&'a Py<Self>, PyObjectRef)> {
         // CPython descr_check
         if !obj.type_check(zelf.obj_type()) {
-            Err(vm.new_type_error(format!("attribute {:?} of {} objects is not readable", zelf, zelf.obj_type())))
+            Err(vm.new_type_error(format!(
+                "descriptor {:?} for {} objects doesn't apply to a {} object",
+                zelf,
+                zelf.obj_type(),
+                obj.obj_type()
+            )))
         } else {
             Ok((Self::_as_pyref(zelf, vm).unwrap(), obj))
         }

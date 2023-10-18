@@ -63,7 +63,7 @@ impl GetDescriptor for PyGetSet {
                 )))
             }
         } else {
-            return Ok(zelf)
+            Ok(zelf)
         }
     }
 }
